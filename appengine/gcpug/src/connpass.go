@@ -1,13 +1,20 @@
 package gcpug
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/mjibson/goon"
+	"github.com/pborman/uuid"
+	"github.com/pkg/errors"
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/urlfetch"
 )
@@ -58,6 +65,73 @@ type ConnpassSeries struct {
 	URL   string `json:"url"`
 }
 
+// PugEvent is Event Model
+type PugEvent struct {
+	Id             string    `datastore:"-" goon:"id" json:"id"`       // UUID
+	OrganizationId string    `json:"organizationId"`                   // 支部Id
+	Title          string    `json:"title" datastore:",noindex"`       // イベントタイトル
+	Description    string    `json:"description" datastore:",noindex"` // イベント説明
+	Url            string    `json:"url"`                              // イベント募集URL
+	StartAt        time.Time `json:"startAt"`                          // 開催日時
+	CreatedAt      time.Time `json:"createdAt"`                        // 作成日時
+	UpdatedAt      time.Time `json:"updatedAt"`                        // 更新日時
+}
+
+// Create is Connpassから取得した情報を元にEventをDatastoreに登録する
+func (pe *PugEvent) Create(ctx context.Context, g *goon.Goon) error {
+	q := datastore.NewQuery("PugEvent")
+	q = q.Filter("Url=", pe.Url)
+
+	var pes []PugEvent
+	_, err := q.GetAll(ctx, &pes)
+	if err != nil {
+		return err
+	}
+	if len(pes) > 0 {
+		return errors.New("exists event")
+	}
+
+	return g.RunInTransaction(func(g *goon.Goon) error {
+		stored := &PugEvent{
+			Id: pe.Id,
+		}
+		err := g.Get(stored)
+		if err == nil {
+			return errors.New("conflict key") // TODO 専用Errorにする
+		}
+		if err != datastore.ErrNoSuchEntity {
+			return err
+		}
+
+		_, err = g.Put(pe)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}, nil)
+}
+
+// Load is PugEvent Load
+func (pe *PugEvent) Load(ps []datastore.Property) error {
+	if err := datastore.LoadStruct(pe, ps); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Save is PugEvent Save
+func (pe *PugEvent) Save() ([]datastore.Property, error) {
+	now := time.Now()
+	pe.UpdatedAt = now
+
+	if pe.CreatedAt.IsZero() {
+		pe.CreatedAt = now
+	}
+
+	return datastore.SaveStruct(pe)
+}
+
 // ConnpassAPI is connpass API Func Collection
 // ConnpassAPIは https://connpass.com/about/api/ を実行してイベントを拾ってくる機能を持つ
 type ConnpassAPI struct{}
@@ -65,31 +139,14 @@ type ConnpassAPI struct{}
 func (api *ConnpassAPI) handler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 
-	client := urlfetch.Client(ctx)
-	resp, err := client.Get(fmt.Sprintf("https://connpass.com/api/v1/event/?series_id=%d", 1898))
+	result, err := api.getConnpassEvents(ctx)
 	if err != nil {
-		log.Errorf(ctx, "failed connpass event query: %+v", err)
+		log.Errorf(ctx, "failed connpass events api: %+v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf(ctx, "failed connpass event query: status = %s", resp.Status)
-		http.Error(w, fmt.Sprintf("failed connpass event query: status = %s", resp.Status), http.StatusInternalServerError)
-		return
-	}
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Errorf(ctx, "failed connpass api result body: %+v", err)
-		http.Error(w, "failed connpass event api result body", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-	result := ConnpassResult{}
-	if err := json.Unmarshal(b, &result); err != nil {
-		log.Errorf(ctx, "failed connpass api result body to json.Unmarshal: %+v", err)
-		http.Error(w, "failed connpass api result body to json.Unmarshal", http.StatusInternalServerError)
-		return
-	}
+
+	sm := api.getSeriesIDMap()
 	for _, v := range result.Events {
 		j, err := json.Marshal(v)
 		if err != nil {
@@ -98,6 +155,19 @@ func (api *ConnpassAPI) handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Infof(ctx, "%s\n", string(j))
+
+		pe := PugEvent{}
+		pe.Id = uuid.New()
+		pe.StartAt = v.StartedAt
+		pe.Title = v.Title
+		pe.Url = v.URL
+		pe.OrganizationId = sm[v.Series.ID]
+
+		g := goon.FromContext(ctx)
+		if err := pe.Create(ctx, g); err != nil {
+			// 重複エラーもあるので、失敗しても気にしない
+			log.Warningf(ctx, "failed put PugEvent title=%s. err:%+v", pe.Title, err)
+		}
 	}
 	j, err := json.Marshal(result.Events)
 	if err != nil {
@@ -108,4 +178,45 @@ func (api *ConnpassAPI) handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/json;charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(j)
+}
+
+func (api *ConnpassAPI) getConnpassEvents(ctx context.Context) (*ConnpassResult, error) {
+	client := urlfetch.Client(ctx)
+	resp, err := client.Get(fmt.Sprintf("https://connpass.com/api/v1/event/?series_id=%s", api.getSeriesIDParam()))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed connpass event query")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed connpass event query: status = %s", resp.Status)
+	}
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("failed connpass event api result body")
+	}
+	defer resp.Body.Close()
+	result := ConnpassResult{}
+	if err := json.Unmarshal(b, &result); err != nil {
+		return nil, errors.New("failed connpass api result body to json.Unmarshal")
+	}
+	return &result, nil
+}
+
+func (api *ConnpassAPI) getSeriesIDParam() string {
+	a := []string{}
+	m := api.getSeriesIDMap()
+	for k := range m {
+		a = append(a, strconv.Itoa(k))
+	}
+	return strings.Join(a, ",")
+}
+
+func (api *ConnpassAPI) getSeriesIDMap() map[int]string {
+	return map[int]string{
+		1898: "tokyo",
+		2239: "nagoya",
+		1658: "shonan",
+		1422: "osaka",
+		4758: "kagoshima",
+	}
+
 }
