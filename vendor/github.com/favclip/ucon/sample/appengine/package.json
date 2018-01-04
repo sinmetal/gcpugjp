@@ -1,0 +1,16 @@
+{
+  "name": "ucon-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "go run main.go model_json.go",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "swagger-ui": "^2.1.4"
+  }
+}
