@@ -1,0 +1,1 @@
+goapp test github.com/sinmetal/gcpugjp/backend

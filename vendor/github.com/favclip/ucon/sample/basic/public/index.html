@@ -1,0 +1,164 @@
+<html>
+<head>
+    <title>TODO</title>
+</head>
+<body>
+<h1>TODO</h1>
+<div id="app">
+    <input type="text" class="newText"><button class="addSubmit">Add</button>
+    <div class="resultList">
+        ...Loading
+    </div>
+</div>
+</body>
+<script>
+        "use strict";
+        class TodoService {
+            getList() {
+                return new Promise((resolve, reject) => {
+                    let xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                resolve(JSON.parse(xhr.response));
+                            } else {
+                                reject(xhr.responseText);
+                            }
+                        }
+                    };
+                    xhr.open("GET", "/todo");
+                    xhr.send();
+                });
+            }
+            add(todo) {
+                return new Promise((resolve, reject) => {
+                    let xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                resolve(JSON.parse(xhr.response));
+                            } else {
+                                reject(xhr.responseText);
+                            }
+                        }
+                    };
+                    xhr.open("POST", "/todo");
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    xhr.send(JSON.stringify(todo, null, 2));
+                });
+            }
+            update(todo) {
+                return new Promise((resolve, reject) => {
+                    let xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                resolve(JSON.parse(xhr.response));
+                            } else {
+                                reject(xhr.responseText);
+                            }
+                        }
+                    };
+                    xhr.open("PUT", `/todo/${todo.id}`);
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    xhr.send(JSON.stringify(todo, null, 2));
+                });
+            }
+            delete(id) {
+                return new Promise((resolve, reject) => {
+                    let xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                resolve(JSON.parse(xhr.response));
+                            } else {
+                                reject(xhr.responseText);
+                            }
+                        }
+                    };
+                    xhr.open("DELETE", `/todo/${id}`);
+                    xhr.send();
+                });
+            }
+        }
+
+        class Controller {
+            constructor() {
+                this.service = new TodoService();
+                this.todoList = [];
+                this.getList();
+            }
+            setup(el) {
+                this.el = el;
+                this.el.querySelector(".addSubmit").addEventListener("click", () => {
+                    this.add();
+                });
+            }
+            add() {
+                let textEl = this.el.querySelector(".newText");
+                let text = textEl.value;
+                if (!text) {
+                    return;
+                }
+                this.service
+                    .add({
+                        text: text,
+                        done: false
+                    })
+                    .then(todo => {
+                        this.todoList.push(todo);
+                        this.refreshView();
+                        textEl.value = "";
+                    });
+            }
+            getList() {
+                this.service
+                    .getList()
+                    .then(todoList => this.todoList = todoList)
+                    .then(() => this.refreshView());
+            }
+            refreshView() {
+                console.log(this.todoList);
+                let el = this.el.querySelector(".resultList");
+                el.innerHTML = "";
+                this.todoList.forEach((todo, i) => {
+                    let div = document.createElement("div");
+                    div.innerText = `ID: ${todo.id}, Text: ${todo.text || "??"}, Done: ${todo.done || false}`;
+                    {
+                        let doneButton = document.createElement("button");
+                        doneButton.innerText = "OK";
+                        doneButton.addEventListener("click", () => {
+                            todo.done = true;
+                            this.service
+                                .update(todo)
+                                .then(todo => {
+                                    this.todoList[i] = todo;
+                                    this.refreshView();
+                                });
+                        });
+                        div.appendChild(doneButton);
+                    }
+                    {
+                        let deleteButton = document.createElement("button");
+                        deleteButton.innerText = "Delete";
+                        deleteButton.addEventListener("click", () => {
+                            this.service
+                                .delete(todo.id)
+                                .then(todo => {
+                                    let newTodoList = [];
+                                    newTodoList = newTodoList.concat(this.todoList.slice(0, i));
+                                    newTodoList = newTodoList.concat(this.todoList.slice(i + 1));
+                                    this.todoList = newTodoList;
+                                    this.refreshView();
+                                });
+                        });
+                        div.appendChild(deleteButton);
+                    }
+                    el.appendChild(div);
+                });
+            }
+        }
+
+        new Controller().setup(document.querySelector("#app"));
+    </script>
+</html>
