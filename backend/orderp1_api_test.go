@@ -16,7 +16,7 @@ func TestOrderP1API_Get(t *testing.T) {
 	}
 	defer testerator.SpinDown()
 
-	r, err := inst.NewRequest(http.MethodGet, "/orderP1", nil)
+	r, err := inst.NewRequest(http.MethodGet, "/api/orderP1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

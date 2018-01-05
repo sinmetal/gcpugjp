@@ -14,11 +14,11 @@ func setupOrderP1(swPlugin *swagger.Plugin) {
 	var hInfo *swagger.HandlerInfo
 
 	hInfo = swagger.NewHandlerInfo(api.Post)
-	ucon.Handle(http.MethodPost, "/orderP1", hInfo)
+	ucon.Handle(http.MethodPost, "/api/orderP1", hInfo)
 	hInfo.Description, hInfo.Tags = "post to orderP1", []string{tag.Name}
 
 	hInfo = swagger.NewHandlerInfo(api.Get)
-	ucon.Handle(http.MethodGet, "/orderP1", hInfo)
+	ucon.Handle(http.MethodGet, "/api/orderP1", hInfo)
 	hInfo.Description, hInfo.Tags = "get to orderP1", []string{tag.Name}
 }
 

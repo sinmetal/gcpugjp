@@ -8,9 +8,15 @@
   version = "v2.0.1"
 
 [[projects]]
+  name = "github.com/favclip/qbg"
+  packages = ["qbgutils"]
+  revision = "ae8057dfe96fdd9e23c88bf9ef5b616f231900c0"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/favclip/testerator"
-  packages = ["."]
+  packages = [".","aeinternal/search","datastore","memcache","search"]
   revision = "334401dbe72dc66e5a940a8c04ae2ab4a9a5af5c"
 
 [[projects]]
@@ -26,20 +32,50 @@
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
+  name = "go.mercari.io/datastore"
+  packages = [".","aedatastore","internal","internal/c/atomiccache","internal/c/fields","internal/shared"]
+  revision = "97f56aa5de4ef24eecc87085bc873d5475bf935b"
+  version = "v0.13.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context"]
+  packages = ["context","context/ctxhttp"]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
+  branch = "master"
+  name = "golang.org/x/oauth2"
+  packages = [".","internal"]
+  revision = "876b1c6ee618a9f8fa31ded3b27708d44b3153af"
+
+[[projects]]
+  branch = "master"
+  name = "google.golang.org/api"
+  packages = ["iterator"]
+  revision = "251495678c7835dbcdc35027844ab32f2fcee7a0"
+
+[[projects]]
+  branch = "master"
   name = "google.golang.org/appengine"
-  packages = [".","aetest","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/user","user"]
+  packages = [".","aetest","datastore","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/memcache","internal/modules","internal/remote_api","internal/search","internal/urlfetch","internal/user","log","memcache","search","urlfetch","user"]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
-  version = "v1.0.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "54687bd379d992791762df0fe8366f73a578b49146973437ded8991efa5edabc"
+  inputs-digest = "1f5a08703bff784dbe8443e4e9638e6dcfb567cd7e4fef6078d0665a2fee32ba"
   solver-name = "gps-cdcl"
   solver-version = 1

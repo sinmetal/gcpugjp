@@ -12,9 +12,11 @@ automatic_scaling:
   max_concurrent_requests: 80
 
 handlers:
+- url: /api/cron/.*
+  login: admin
+  script: _go_app
 - url: /swagger-ui
   static_dir: swagger-ui
   login: admin
 - url: /.*
   script: _go_app
-  login: admin

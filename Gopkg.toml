@@ -30,4 +30,4 @@
 
 [[constraint]]
   name = "google.golang.org/appengine"
-  version = "1.0.0"
+  branch = "master"

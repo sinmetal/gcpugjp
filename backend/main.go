@@ -1,13 +1,15 @@
 package backend
 
 import (
+	"context"
 	"net/http"
 	"reflect"
 	"strings"
 
 	"github.com/favclip/ucon"
 	"github.com/favclip/ucon/swagger"
-
+	"go.mercari.io/datastore"
+	"go.mercari.io/datastore/aedatastore"
 	"google.golang.org/appengine"
 )
 
@@ -19,10 +21,10 @@ func init() {
 	swPlugin := swagger.NewPlugin(&swagger.Options{
 		Object: &swagger.Object{
 			Info: &swagger.Info{
-				Title:   "Google App Engine for Go Template",
+				Title:   "GCPUG",
 				Version: "v1",
 			},
-			Schemes: []string{"http"},
+			Schemes: []string{"http", "https"},
 		},
 		DefinitionNameModifier: func(refT reflect.Type, defName string) string {
 			if strings.HasSuffix(defName, "JSON") {
@@ -34,9 +36,10 @@ func init() {
 	ucon.Plugin(swPlugin)
 
 	setupOrderP1(swPlugin)
+	setupConnpassAPI(swPlugin)
 
 	ucon.DefaultMux.Prepare()
-	http.Handle("/", ucon.DefaultMux)
+	http.Handle("/api/", ucon.DefaultMux)
 }
 
 // UseAppengineContext is UseAppengineContext
@@ -48,4 +51,9 @@ func UseAppengineContext(b *ucon.Bubble) error {
 	}
 
 	return b.Next()
+}
+
+// FromContext is Create Datastore Client from Context
+func FromContext(ctx context.Context) (datastore.Client, error) {
+	return aedatastore.FromContext(ctx)
 }
