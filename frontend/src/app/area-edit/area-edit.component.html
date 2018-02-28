@@ -1,0 +1,26 @@
+<form (submit)="save($event)">
+    <mat-list>
+        <mat-list-item @slideFade *ngFor="let area of areas; let i = index">
+            <table class="example-full-width" cellspacing="0">
+                <tr>
+                    <td>
+                        <mat-form-field>
+                            <input matInput type="text" placeholder="表示名" [(ngModel)]="area.label" [name]="'label-' + i">
+                        </mat-form-field>
+                    </td>
+                    <td>
+                        <mat-form-field>
+                            <input matInput type="text" placeholder="都市名" [(ngModel)]="area.city" [name]="'city-' + i">
+                        </mat-form-field>
+                    </td>
+                    <td>
+                        <button type="button" mat-button (click)="delete(area, i)">削除</button>
+                    </td>
+                </tr>
+            </table>
+        </mat-list-item>
+    </mat-list>
+
+    <a mat-raised-button (click)="addArea()">追加</a>
+    <button mat-raised-button>保存</button>
+</form>

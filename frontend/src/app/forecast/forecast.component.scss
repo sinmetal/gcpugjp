@@ -1,0 +1,19 @@
+.wind-arrow {
+    display: inline-block;
+    transform-origin: center;
+    transition-duration: 500ms;
+    transition-timing-function: ease-in-out;
+    transition-property: transform;
+}
+
+.current-weather-table {
+    border-collapse: collapse;
+    th {
+        border-bottom: 1px solid #ccc;
+        padding: 10px 20px;
+    }
+    td {
+        padding: 10px;
+        text-align: center;
+    }
+}

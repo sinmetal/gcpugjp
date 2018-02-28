@@ -1,0 +1,55 @@
+<div *ngIf="(currentWeatherObservable | async) as weather">
+    <mat-card>
+        <mat-card-header>
+            <img mat-card-avatar src="//openweathermap.org/img/w/{{weather.weather[0].icon}}.png" [alt]="weather.weather[0].description">
+            <mat-card-title>{{weather.dt | unixTimeDate : 'yyyyMMdd'}}</mat-card-title>
+            <mat-card-subtitle>{{weather.weather[0].description}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+            <table class="current-weather-table">
+                <thead>
+                    <tr>
+                        <th>気圧</th>
+                        <th>湿度</th>
+                        <th>風</th>
+                        <th>気温</th>
+                        <th>最低気温</th>
+                        <th>最高気温</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{weather.main.pressure}}</td>
+                        <td>{{weather.main.humidity}}</td>
+                        <td><span class="wind-arrow" [style.transform]="'rotate('+weather.wind.deg+'deg)'">↑</span> {{weather.wind.speed}}
+                        </td>
+                        <td>{{weather.main.temp}}</td>
+                        <td>{{weather.main.temp_min}}</td>
+                        <td>{{weather.main.temp_max}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </mat-card-content>
+    </mat-card>
+</div>
+<div *ngIf="(forecastObservable | async) as forecast">
+    <div *ngIf="(forecastObservable | async) as forecast">
+        <canvas baseChart width="400" height="100" [datasets]="lineChartData" [labels]="lineChartLabels" [options]="{responsive: true}" [legend]="true" chartType="line"></canvas>
+        <mat-list [@slideFade]="forecast.list">
+            <mat-list-item *ngFor="let weather of forecast.list" class="mat-elevation-z1">
+                <img matListAvatar src="//openweathermap.org/img/w/{{weather.weather[0].icon}}.png" alt="">
+                <h4 matLine>{{weather.dt | unixTimeDate : 'yyyyMMdd'}}</h4>
+                <p matLine>
+                    <span>{{weather.weather[0].description}}</span>
+                </p>
+                <p matLine>
+                    <span>気温: {{weather.temp.day}}</span>
+                    <span>最高気温: {{weather.temp.max}}</span>
+                    <span>最低気温: {{weather.temp.min}}</span>
+                    <span>湿度: {{weather.temp.min}}</span>
+                    <span>風: <span class="wind-arrow"
+                       [style.transform]="'rotate('+weather.deg+'deg)'">↑</span>{{weather.speed}}</span>
+                </p>
+            </mat-list-item>
+        </mat-list>
+    </div>

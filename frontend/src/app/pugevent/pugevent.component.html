@@ -1,0 +1,12 @@
+<div *ngIf="(eventAPIResObservable | async) as res">
+  <mat-list>
+    <mat-list-item *ngFor="let event of res.list" class="mat-elevation-z1">
+      <h2 mat-line>
+        <span><a href="{{event.url}}" target="_blank">{{event.title}}</a></span>
+      </h2>
+      <p mat-line>
+        <span>{{event.organizationId}}</span> : <span>{{event.startAt | generalDate}}</span>
+      </p>
+    </mat-list-item>
+  </mat-list>
+</div>
