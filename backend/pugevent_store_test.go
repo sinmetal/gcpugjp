@@ -125,3 +125,60 @@ func TestPugEventStore_Get(t *testing.T) {
 		t.Fatalf("SchemaVersion is Zero")
 	}
 }
+
+func TestPugEventStore_List(t *testing.T) {
+	_, ctx, err := testerator.SpinUp() // gae/pythonのインスタンスが無ければ起動、あれば使いまわす
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer testerator.SpinDown() // プロセスをシャットダウンせずに、Datastoreなどの内容をクリアする
+
+	store, err := NewPugEventStore(ctx)
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	candidates := []struct {
+		limit       int
+		length      int
+		existCursor bool
+	}{
+		{1, 1, true},
+		{1, 1, true},
+		{2, 2, true},
+	}
+
+	for i, v := range candidates {
+		e := PugEvent{
+			OrganizationID: "tokyo",
+			Title:          "GCPUG Day",
+			Description:    "GCPUGやるぞー！",
+			URL:            "https://gcpug.jp",
+			StartAt:        time.Now(),
+			EndAt:          time.Now(),
+		}
+
+		_, err = store.Create(ctx, &e)
+		if err != nil {
+			t.Fatalf("%+v", err)
+		}
+
+		param := &PugEventListParam{
+			Limit: v.limit,
+		}
+		results, err := store.List(ctx, param)
+		if err != nil {
+			t.Fatalf("i = %d, failed PugEventStore.List %+v", i, err)
+		}
+		if e, g := v.length, len(results.List); e != g {
+			t.Fatalf("i = %d, expected results.List %d; got %d", i, e, g)
+		}
+		existCursor := results.NextCursor != nil
+		if e, g := v.existCursor, existCursor; e != g {
+			t.Fatalf("i = %d, expected results.NextCursor %t; got %t", i, e, g)
+		}
+		if results.List[0].KeyStr == "" {
+			t.Fatalf("i = %d, expected results.List[0].KeyStr is not empty", i)
+		}
+	}
+}

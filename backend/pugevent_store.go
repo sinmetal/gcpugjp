@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.mercari.io/datastore"
+	"google.golang.org/api/iterator"
 	"google.golang.org/appengine/log"
 )
 
@@ -19,7 +20,8 @@ var _ datastore.KeyLoader = &PugEvent{}
 // PugEvent is Event Model
 // +qbg
 type PugEvent struct {
-	Key            datastore.Key `datastore:"-" json:"-"`                  // Key
+	Key            datastore.Key `datastore:"-" json:"-"` // Key
+	KeyStr         string        `datastore:"-" json:"key"`
 	OrganizationID string        `json:"organizationId"`                   // 支部Id
 	Title          string        `json:"title" datastore:",noindex"`       // イベントタイトル
 	Description    string        `json:"description" datastore:",noindex"` // イベント説明
@@ -107,12 +109,14 @@ func (store *PugEventStore) Create(ctx context.Context, e *PugEvent) (*PugEvent,
 // 引数のURLが空の時は登録を行う
 // URLの重複はQueryで調べているので、Eventual Consistency
 func (store *PugEventStore) CreateIfNewURL(ctx context.Context, e *PugEvent) (*PugEvent, error) {
+	ds := store.DatastoreClient
+
 	if len(e.URL) > 0 {
 		var es []PugEvent
-		b := NewPugEventQueryBuilder()
+		b := NewPugEventQueryBuilder(ds)
 		b = b.URL.Equal(e.URL)
 		b = b.KeysOnly()
-		ks, err := b.Query().GetAll(ctx, &es)
+		ks, err := ds.GetAll(ctx, b.Query(), &es)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed Query to Datastore")
 		}
@@ -137,4 +141,62 @@ func (store *PugEventStore) Get(ctx context.Context, key datastore.Key) (*PugEve
 	}
 
 	return &e, nil
+}
+
+// PugEventListParam is PugEvent一覧取得時のパラメーター
+type PugEventListParam struct {
+	Limit       int
+	StartCursor datastore.Cursor
+}
+
+// PugEventListResponse is PugEvent一覧取得時のレスポンス
+type PugEventListResponse struct {
+	List       []*PugEvent
+	HasNext    bool
+	NextCursor datastore.Cursor
+}
+
+// List is PugEventの一覧を取得する
+// 順番はイベント開始日時の降順固定
+func (store *PugEventStore) List(ctx context.Context, param *PugEventListParam) (*PugEventListResponse, error) {
+	ds := store.DatastoreClient
+
+	b := NewPugEventQueryBuilder(ds)
+	b = b.StartAt.Desc()
+	b = b.KeysOnly()
+	b = b.Limit(param.Limit)
+	if param.StartCursor != nil {
+		b = b.Start(param.StartCursor)
+	}
+	it := ds.Run(ctx, b.Query())
+	var keys []datastore.Key
+	for {
+		var event PugEvent
+		k, err := it.Next(&event)
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, errors.Wrap(err, "failed datastore.next")
+		}
+		keys = append(keys, k)
+	}
+	cursor, err := it.Cursor()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed datastore get cursor")
+	}
+
+	es := make([]*PugEvent, len(keys), len(keys))
+	if err := ds.GetMulti(ctx, keys, es); err != nil {
+		return nil, errors.Wrap(err, "failed datastore get multi")
+	}
+	for i := 0; i < len(es); i++ {
+		es[i].Key = keys[i]
+		es[i].KeyStr = keys[i].Encode()
+	}
+
+	return &PugEventListResponse{
+		List:       es,
+		NextCursor: cursor,
+	}, nil
 }
