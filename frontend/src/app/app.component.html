@@ -1,0 +1,25 @@
+<div class="loading-bar" [hidden]="!(loadingObservable | async)">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</div>
+
+<mat-toolbar color="primary" class="toolbar mat-elevation-z6">
+    <span>{{title}}</span>
+</mat-toolbar>
+
+<mat-sidenav-container>
+    <mat-sidenav #sidenav mode="side" opened="true" class="mat-elevation-z5">
+        <mat-nav-list>
+            <mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">トップ</mat-list-item>
+            <mat-list-item routerLink="/area/edit" routerLinkActive="active">編集</mat-list-item>
+
+            <mat-divider></mat-divider>
+            <h3 matSubheader>天気予報</h3>
+            <mat-list-item *ngFor="let pref of (areasObservable | async)" [routerLink]="['/forecast', pref.city]" routerLinkActive="active">{{pref.label}}</mat-list-item>
+            <mat-list-item routerLink="/pugevent" routerLinkActive="active">EVENT</mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <div class="container">
+        <router-outlet></router-outlet>
+    </div>
+</mat-sidenav-container>
