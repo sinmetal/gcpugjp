@@ -5,7 +5,10 @@
         <span><a href="{{event.url}}" target="_blank">{{event.title}}</a></span>
       </h2>
       <p mat-line>
-        <span>{{event.organizationId}}</span> : <span>{{event.startAt | generalDate}}</span>
+        <span>{{event.organizationId}}</span>
+      </p>
+      <p mat-line>
+        <span>{{event.startAt | generalDate}}</span>
       </p>
     </mat-list-item>
   </mat-list>
