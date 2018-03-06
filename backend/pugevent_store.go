@@ -1,4 +1,4 @@
-//go:generate qbg -output pugevent_query.go .
+//go:generate qbg -usedatastorewrapper -output model_query.go .
 
 package backend
 

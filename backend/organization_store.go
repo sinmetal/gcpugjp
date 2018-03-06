@@ -1,3 +1,5 @@
+//go:generate qbg -usedatastorewrapper -output model_query.go .
+
 package backend
 
 import (
@@ -14,16 +16,16 @@ var _ datastore.PropertyLoadSaver = &Organization{}
 var _ datastore.KeyLoader = &Organization{}
 
 // Organization is 支部 Datastore Entity Model
-// qbg
+// +qbg
 type Organization struct {
 	Key           datastore.Key `datastore:"-" json:"-"`
 	KeyStr        string        `datastore:"-" json:"key"` // Json変換用 Encode Key
-	Name          string        // 支部名 : example GCPUG東京
-	URL           string        // connpassなどのURL
-	LogoURL       string        // 支部のLogoURL
-	Order         int           // Sort順 市区町村コードを入れている
-	CreatedAt     time.Time     `json:"createdAt"` // 作成日時
-	UpdatedAt     time.Time     `json:"updatedAt"` // 更新日時
+	Name          string        `json:"name" `             // 支部名 : example GCPUG東京
+	URL           string        `json:"url"`               // connpassなどのURL
+	LogoURL       string        `json:"logoUrl"`           // 支部のLogoURL
+	Order         int           `json:"order"`             // Sort順 市区町村コードを入れている
+	CreatedAt     time.Time     `json:"createdAt"`         // 作成日時
+	UpdatedAt     time.Time     `json:"updatedAt"`         // 更新日時
 	SchemaVersion int           `json:"-"`
 }
 
@@ -105,4 +107,25 @@ func (store *OrganizationStore) Get(ctx context.Context, key datastore.Key) (*Or
 	e.KeyStr = key.Encode()
 
 	return &e, nil
+}
+
+// ListAll is OrganizationをOrderの昇順で全件取得する
+// 支部は多くても500個程度だと思われるので、全件取得してしまう
+func (store *OrganizationStore) ListAll(ctx context.Context) ([]*Organization, error) {
+	ds := store.DatastoreClient
+
+	b := NewOrganizationQueryBuilder(ds)
+	b = b.Order.Asc()
+
+	var l []*Organization
+	keys, err := ds.GetAll(ctx, b.Query(), &l)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed list Organization from Datastore.")
+	}
+	for i := 0; i < len(keys); i++ {
+		l[i].Key = keys[i]
+		l[i].KeyStr = keys[i].Encode()
+	}
+
+	return l, nil
 }
