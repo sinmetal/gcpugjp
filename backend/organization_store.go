@@ -83,6 +83,7 @@ func (store *OrganizationStore) NameKey(ctx context.Context, name string) datast
 }
 
 // Create is OrganizationをDatastoreにputする
+// TODO Createと言っているが、単純にputしている
 func (store *OrganizationStore) Create(ctx context.Context, key datastore.Key, e *Organization) (*Organization, error) {
 	ds := store.DatastoreClient
 

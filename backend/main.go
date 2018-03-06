@@ -39,6 +39,7 @@ func init() {
 	setupOrderP1(swPlugin)
 	setupConnpassAPI(swPlugin)
 	setupPugEventAPI(swPlugin)
+	setupOrganizationAdminAPI(swPlugin)
 
 	ucon.DefaultMux.Prepare()
 	http.Handle("/api/", ucon.DefaultMux)
