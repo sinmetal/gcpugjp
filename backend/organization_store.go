@@ -118,7 +118,7 @@ func (store *OrganizationStore) ListAll(ctx context.Context) ([]*Organization, e
 	b := NewOrganizationQueryBuilder(ds)
 	b = b.Order.Asc()
 
-	var l []*Organization
+	l := make([]*Organization, 0, 10)
 	keys, err := ds.GetAll(ctx, b.Query(), &l)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed list Organization from Datastore.")
