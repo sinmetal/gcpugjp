@@ -15,6 +15,9 @@ handlers:
 - url: /api/cron/.*
   login: admin
   script: _go_app
+- url: /api/admin/.*
+  login: admin
+  script: _go_app
 - url: /swagger-ui
   static_dir: swagger-ui
   login: admin
