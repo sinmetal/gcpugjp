@@ -5,6 +5,7 @@ import { HomeComponent } from './home/home.component';
 import { ForecastComponent } from './forecast/forecast.component';
 import { AreaEditComponent } from './area-edit/area-edit.component';
 import { PugeventComponent } from './pugevent/pugevent.component';
+import { OrganizationComponent } from './organization/organization.component';
 
 const routes: Routes = [
   {
@@ -23,6 +24,10 @@ const routes: Routes = [
   {
     path: 'pugevent',
     component: PugeventComponent
+  },
+  {
+    path: 'organization',
+    component: OrganizationComponent
   }
 ];
 

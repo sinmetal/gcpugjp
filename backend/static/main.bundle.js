@@ -281,12 +281,14 @@ webpackEmptyAsyncContext.id = "./src/$$_gendir lazy recursive";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__forecast_forecast_component__ = __webpack_require__("./src/app/forecast/forecast.component.ts");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__area_edit_area_edit_component__ = __webpack_require__("./src/app/area-edit/area-edit.component.ts");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__pugevent_pugevent_component__ = __webpack_require__("./src/app/pugevent/pugevent.component.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__organization_organization_component__ = __webpack_require__("./src/app/organization/organization.component.ts");
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+
 
 
 
@@ -310,6 +312,10 @@ var routes = [
     {
         path: 'pugevent',
         component: __WEBPACK_IMPORTED_MODULE_5__pugevent_pugevent_component__["a" /* PugeventComponent */]
+    },
+    {
+        path: 'organization',
+        component: __WEBPACK_IMPORTED_MODULE_6__organization_organization_component__["a" /* OrganizationComponent */]
     }
 ];
 var AppRoutingModule = (function () {
@@ -373,7 +379,7 @@ var slideFadeOut = Object(__WEBPACK_IMPORTED_MODULE_0__angular_animations__["f" 
 /***/ "./src/app/app.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"loading-bar\" [hidden]=\"!(loadingObservable | async)\">\n    <mat-progress-bar mode=\"indeterminate\"></mat-progress-bar>\n</div>\n\n<mat-toolbar color=\"primary\" class=\"toolbar mat-elevation-z6\">\n    <span>{{title}}</span>\n</mat-toolbar>\n\n<mat-sidenav-container>\n    <mat-sidenav #sidenav mode=\"side\" opened=\"true\" class=\"mat-elevation-z5\">\n        <mat-nav-list>\n            <mat-list-item routerLink=\"/\" routerLinkActive=\"active\" [routerLinkActiveOptions]=\"{exact: true}\">トップ</mat-list-item>\n            <mat-list-item routerLink=\"/area/edit\" routerLinkActive=\"active\">編集</mat-list-item>\n\n            <mat-divider></mat-divider>\n            <h3 matSubheader>天気予報</h3>\n            <mat-list-item *ngFor=\"let pref of (areasObservable | async)\" [routerLink]=\"['/forecast', pref.city]\" routerLinkActive=\"active\">{{pref.label}}</mat-list-item>\n            <mat-list-item routerLink=\"/pugevent\" routerLinkActive=\"active\">EVENT</mat-list-item>\n        </mat-nav-list>\n    </mat-sidenav>\n\n    <div class=\"container\">\n        <router-outlet></router-outlet>\n    </div>\n</mat-sidenav-container>\n"
+module.exports = "<div class=\"loading-bar\" [hidden]=\"!(loadingObservable | async)\">\n    <mat-progress-bar mode=\"indeterminate\"></mat-progress-bar>\n</div>\n\n<mat-toolbar color=\"primary\" class=\"toolbar mat-elevation-z6\">\n    <span>{{title}}</span>\n</mat-toolbar>\n\n<mat-sidenav-container>\n    <mat-sidenav #sidenav mode=\"side\" opened=\"true\" class=\"mat-elevation-z5\">\n        <mat-nav-list>\n            <mat-list-item routerLink=\"/\" routerLinkActive=\"active\" [routerLinkActiveOptions]=\"{exact: true}\">トップ</mat-list-item>\n            <mat-list-item routerLink=\"/area/edit\" routerLinkActive=\"active\">編集</mat-list-item>\n\n            <mat-divider></mat-divider>\n            <h3 matSubheader>天気予報</h3>\n            <mat-list-item *ngFor=\"let pref of (areasObservable | async)\" [routerLink]=\"['/forecast', pref.city]\" routerLinkActive=\"active\">{{pref.label}}</mat-list-item>\n            <mat-list-item routerLink=\"/pugevent\" routerLinkActive=\"active\">イベント</mat-list-item>\n            <mat-list-item routerLink=\"/organization\" routerLinkActive=\"active\">支部</mat-list-item>\n        </mat-nav-list>\n    </mat-sidenav>\n\n    <div class=\"container\">\n        <router-outlet></router-outlet>\n    </div>\n</mat-sidenav-container>\n"
 
 /***/ }),
 
@@ -455,13 +461,17 @@ var _a, _b;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_ng2_charts_ng2_charts___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_16_ng2_charts_ng2_charts__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__pugevent_pugevent_component__ = __webpack_require__("./src/app/pugevent/pugevent.component.ts");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__services_pugevent_service__ = __webpack_require__("./src/app/services/pugevent.service.ts");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__pipe_general_date_pipe__ = __webpack_require__("./src/app/pipe/general-date.pipe.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__services_organization_service__ = __webpack_require__("./src/app/services/organization.service.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__pipe_general_date_pipe__ = __webpack_require__("./src/app/pipe/general-date.pipe.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__organization_organization_component__ = __webpack_require__("./src/app/organization/organization.component.ts");
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+
+
 
 
 
@@ -496,7 +506,9 @@ AppModule = __decorate([
             __WEBPACK_IMPORTED_MODULE_10__forecast_forecast_component__["a" /* ForecastComponent */],
             __WEBPACK_IMPORTED_MODULE_12__pipes_unix_time_date_pipe__["a" /* UnixTimeDatePipe */],
             __WEBPACK_IMPORTED_MODULE_17__pugevent_pugevent_component__["a" /* PugeventComponent */],
-            __WEBPACK_IMPORTED_MODULE_19__pipe_general_date_pipe__["a" /* GeneralDatePipe */]
+            __WEBPACK_IMPORTED_MODULE_21__organization_organization_component__["a" /* OrganizationComponent */],
+            __WEBPACK_IMPORTED_MODULE_20__pipe_general_date_pipe__["a" /* GeneralDatePipe */],
+            __WEBPACK_IMPORTED_MODULE_21__organization_organization_component__["a" /* OrganizationComponent */]
         ],
         imports: [
             __WEBPACK_IMPORTED_MODULE_16_ng2_charts_ng2_charts__["ChartsModule"],
@@ -517,6 +529,7 @@ AppModule = __decorate([
             __WEBPACK_IMPORTED_MODULE_15__services_area_service__["a" /* AreaService */],
             __WEBPACK_IMPORTED_MODULE_11__services_open_weather_map_service__["a" /* OpenWeatherMapService */],
             __WEBPACK_IMPORTED_MODULE_18__services_pugevent_service__["a" /* PugeventService */],
+            __WEBPACK_IMPORTED_MODULE_19__services_organization_service__["a" /* OrganizationService */],
             __WEBPACK_IMPORTED_MODULE_14__services_loading_service__["a" /* LoadingService */],
             {
                 provide: __WEBPACK_IMPORTED_MODULE_3__angular_common_http__["a" /* HTTP_INTERCEPTORS */],
@@ -830,6 +843,67 @@ LoadingInterceptor = __decorate([
 
 var _a;
 //# sourceMappingURL=loading-interceptor.js.map
+
+/***/ }),
+
+/***/ "./src/app/organization/organization.component.html":
+/***/ (function(module, exports) {
+
+module.exports = "<div *ngIf=\"(organizationAPIResObservable | async) as res\">\n  <mat-list>\n    <mat-list-item *ngFor=\"let organization of res.list\" class=\"mat-elevation-z1\">\n      <h2 mat-line>\n        <span><a href=\"{{organization.url}}\" target=\"_blank\">{{organization.name}}</a></span>\n      </h2>\n    </mat-list-item>\n  </mat-list>\n</div>\n"
+
+/***/ }),
+
+/***/ "./src/app/organization/organization.component.scss":
+/***/ (function(module, exports) {
+
+module.exports = ""
+
+/***/ }),
+
+/***/ "./src/app/organization/organization.component.ts":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OrganizationComponent; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("./node_modules/@angular/core/@angular/core.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__("./node_modules/@angular/router/@angular/router.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_organization_service__ = __webpack_require__("./src/app/services/organization.service.ts");
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+var OrganizationComponent = (function () {
+    function OrganizationComponent(route, organizationService) {
+        this.route = route;
+        this.organizationService = organizationService;
+    }
+    OrganizationComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.organizationAPIResObservable = this.route.params.switchMap(function () {
+            return _this.organizationService.list();
+        });
+    };
+    return OrganizationComponent;
+}());
+OrganizationComponent = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
+        selector: 'app-organization',
+        template: __webpack_require__("./src/app/organization/organization.component.html"),
+        styles: [__webpack_require__("./src/app/organization/organization.component.scss")]
+    }),
+    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* ActivatedRoute */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* ActivatedRoute */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__services_organization_service__["a" /* OrganizationService */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__services_organization_service__["a" /* OrganizationService */]) === "function" && _b || Object])
+], OrganizationComponent);
+
+var _a, _b;
+//# sourceMappingURL=organization.component.js.map
 
 /***/ }),
 
@@ -1149,6 +1223,44 @@ OpenWeatherMapService = __decorate([
 
 var _a;
 //# sourceMappingURL=open-weather-map.service.js.map
+
+/***/ }),
+
+/***/ "./src/app/services/organization.service.ts":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OrganizationService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("./node_modules/@angular/core/@angular/core.es5.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_common_http__ = __webpack_require__("./node_modules/@angular/common/@angular/common/http.es5.js");
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+var OrganizationService = (function () {
+    function OrganizationService(http) {
+        this.http = http;
+        this.API = '/api/1';
+    }
+    OrganizationService.prototype.list = function () {
+        return this.http.get(this.API + "/organization", {});
+    };
+    return OrganizationService;
+}());
+OrganizationService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(),
+    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_common_http__["b" /* HttpClient */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1__angular_common_http__["b" /* HttpClient */]) === "function" && _a || Object])
+], OrganizationService);
+
+var _a;
+//# sourceMappingURL=organization.service.js.map
 
 /***/ }),
 

@@ -1,0 +1,9 @@
+<div *ngIf="(organizationAPIResObservable | async) as res">
+  <mat-list>
+    <mat-list-item *ngFor="let organization of res.list" class="mat-elevation-z1">
+      <h2 mat-line>
+        <span><a href="{{organization.url}}" target="_blank">{{organization.name}}</a></span>
+      </h2>
+    </mat-list-item>
+  </mat-list>
+</div>
