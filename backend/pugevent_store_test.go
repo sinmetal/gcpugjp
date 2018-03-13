@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -153,7 +154,7 @@ func TestPugEventStore_List(t *testing.T) {
 			OrganizationID: "tokyo",
 			Title:          "GCPUG Day",
 			Description:    "GCPUGやるぞー！",
-			URL:            "https://gcpug.jp",
+			URL:            fmt.Sprintf("https://gcpug.jp/%d", i),
 			StartAt:        time.Now(),
 			EndAt:          time.Now(),
 		}

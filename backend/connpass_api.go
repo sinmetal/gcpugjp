@@ -102,7 +102,7 @@ func (api *ConnpassAPI) Get(ctx context.Context, w http.ResponseWriter, r *http.
 		pe.URL = v.URL
 		pe.OrganizationID = sm[v.Series.ID]
 
-		_, err = store.CreateIfNewURL(ctx, &pe)
+		_, err = store.Create(ctx, &pe)
 		if err != nil {
 			// 重複エラーもあるので、失敗しても気にしない
 			log.Warningf(ctx, "failed put PugEvent title=%s. err:%+v", pe.Title, err)

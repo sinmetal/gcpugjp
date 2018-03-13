@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
+	"crypto/sha256"
 	"github.com/pkg/errors"
 	"go.mercari.io/datastore"
 	"google.golang.org/api/iterator"
@@ -81,53 +81,22 @@ func (store *PugEventStore) Kind() string {
 	return "PugEvent"
 }
 
-// NewKey is PugEventの新しいKeyを生成する
-func (store *PugEventStore) NewKey(ctx context.Context, ds datastore.Client) datastore.Key {
-	return ds.NameKey(store.Kind(), uuid.New().String(), nil)
-}
-
 // NameKey is PugEventの指定したNameを利用したKeyを生成する
-func (store *PugEventStore) NameKey(ctx context.Context, ds datastore.Client, name string) datastore.Key {
-	return ds.NameKey(store.Kind(), name, nil)
+func (store *PugEventStore) NameKey(ctx context.Context, url string) datastore.Key {
+	return store.DatastoreClient.NameKey(store.Kind(), fmt.Sprintf("%x", sha256.Sum256([]byte(url))), nil)
 }
 
 // Create is PugEventをDatastoreにputする
 func (store *PugEventStore) Create(ctx context.Context, e *PugEvent) (*PugEvent, error) {
 	ds := store.DatastoreClient
 
-	key := store.NewKey(ctx, ds)
+	key := store.NameKey(ctx, e.URL)
 	_, err := ds.Put(ctx, key, e)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("failed put PugEvent to Datastore. key=%v", key))
 	}
 	e.Key = key
 	return e, nil
-}
-
-// CreateIfNewURL is Event URLが重複していなければEventを登録する
-// 主にconnpassのAPIを叩いて取得した結果を保存するのに利用する
-// 引数のURLが空の時は登録を行う
-// URLの重複はQueryで調べているので、Eventual Consistency
-func (store *PugEventStore) CreateIfNewURL(ctx context.Context, e *PugEvent) (*PugEvent, error) {
-	ds := store.DatastoreClient
-
-	if len(e.URL) > 0 {
-		var es []PugEvent
-		b := NewPugEventQueryBuilder(ds)
-		b = b.URL.Equal(e.URL)
-		b = b.KeysOnly()
-		ks, err := ds.GetAll(ctx, b.Query(), &es)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed Query to Datastore")
-		}
-		if len(ks) > 0 {
-			return nil, fmt.Errorf("It is a URL that already exists. key=%s, url=%s", ks[0], e.URL)
-		}
-	} else {
-		log.Infof(ctx, "Event URL is Empty")
-	}
-
-	return store.Create(ctx, e)
 }
 
 // Get is PugEventをDatastoreからgetする
