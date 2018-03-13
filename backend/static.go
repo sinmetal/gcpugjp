@@ -24,11 +24,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	f, err := readFile(fn)
 	if err != nil {
 		if err == ErrDirectory {
-			http.NotFound(w, r)
+			writeIndexHTML(w)
 			return
 		}
 		if os.IsNotExist(err) {
-			http.NotFound(w, r)
+			writeIndexHTML(w)
 			return
 		}
 		if os.IsPermission(err) {
@@ -90,4 +90,17 @@ func readFile(path string) ([]byte, error) {
 	defer fp.Close()
 
 	return ioutil.ReadAll(fp)
+}
+
+func writeIndexHTML(w http.ResponseWriter) {
+	fn := "index.html"
+	f, err := readFile(fn)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html;charset=utf-8")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(f)))
+	w.WriteHeader(http.StatusOK)
+	w.Write(f)
 }
