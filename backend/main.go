@@ -41,6 +41,7 @@ func init() {
 	setupPugEventAPI(swPlugin)
 	setupOrganizationAPI(swPlugin)
 	setupOrganizationAdminAPI(swPlugin)
+	setupAppEngineEnvAPI(swPlugin)
 
 	ucon.DefaultMux.Prepare()
 	http.Handle("/api/", ucon.DefaultMux)
