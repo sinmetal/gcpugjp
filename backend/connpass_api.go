@@ -149,12 +149,16 @@ func (api *ConnpassAPI) getSeriesIDParam() string {
 	return strings.Join(a, ",")
 }
 
+// getSeriesIDMap is Watch対象のconnpass group一覧を取得する
+// group idは https://connpass.com/api/v1/event/?keyword=GCPUG を叩くと見える
 func (api *ConnpassAPI) getSeriesIDMap() map[int]string {
 	return map[int]string{
 		1898: "tokyo",
 		2239: "nagoya",
 		1658: "shonan",
+		5297: "kyoto",
 		1422: "osaka",
+		1170: "fukuoka",
 		4758: "kagoshima",
 		3824: "okinawa",
 	}
