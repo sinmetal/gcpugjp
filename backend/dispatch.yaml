@@ -1,0 +1,3 @@
+dispatch:
+  - url: "*slack.gcpug.jp/*"
+    service: slack
