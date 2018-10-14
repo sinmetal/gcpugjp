@@ -18,5 +18,11 @@ frontend/build.sh
 ## Local Run
 
 ```
-goapp serve backend
+dev_appserver.py .
+```
+
+## Deploy
+
+```
+gcloud app deploy --project {target project} .
 ```
