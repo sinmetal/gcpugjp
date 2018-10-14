@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/favclip/ucon/swagger"
 )
 
-func setupOrderP1(swPlugin *swagger.Plugin) {
+func SetupOrderP1(swPlugin *swagger.Plugin) {
 	api := &OrderP1API{}
 	tag := swPlugin.AddTag(&swagger.Tag{Name: "OrderP1", Description: "OrderP1 list"})
 	var hInfo *swagger.HandlerInfo

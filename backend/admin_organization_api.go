@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-func setupOrganizationAdminAPI(swPlugin *swagger.Plugin) {
+func SetupOrganizationAdminAPI(swPlugin *swagger.Plugin) {
 	api := &OrganizationAdminAPI{}
 
 	tag := swPlugin.AddTag(&swagger.Tag{Name: "Organization", Description: "Organization Admin API List"})

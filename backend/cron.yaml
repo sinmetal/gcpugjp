@@ -1,6 +1,0 @@
-cron:
-- description: pull connpass
-  url: /api/cron/1/connpass
-  target: connpass
-  schedule: every 3 hours from 09:00 to 21:00
-  timezone: Asia/Tokyo
