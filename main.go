@@ -42,6 +42,7 @@ func main() {
 
 	ucon.DefaultMux.Prepare()
 	http.Handle("/api/", ucon.DefaultMux)
+	http.HandleFunc("/slack", backend.SlackInviteHandler)
 	http.HandleFunc("/", backend.StaticContentsHandler)
 
 	appengine.Main()
