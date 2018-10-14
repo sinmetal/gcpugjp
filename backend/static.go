@@ -1,11 +1,9 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,10 +11,6 @@ import (
 
 // ErrDirectory is target path is Directory
 var ErrDirectory = errors.New("path is directory")
-
-func init() {
-	http.HandleFunc("/", handler)
-}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fn := r.URL.Path[1:len(r.URL.Path)]
@@ -39,18 +33,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	ctx := context.Background()
-	store, err := NewOrganizationStore(ctx)
-	if err != nil {
-		log.Printf("failed NewOrganizationStore. err = %+v", err)
-	} else {
-		l, err := store.ListAll(ctx)
-		if err != nil {
-			log.Printf("failed OrganizationStore.ListAll err = %+v", err)
-		}
-		log.Printf("Organizetion : %+v", l)
 	}
 
 	ext := filepath.Ext(fmt.Sprintf("static/%s", fn))
