@@ -9,7 +9,7 @@ import (
 	"google.golang.org/appengine"
 )
 
-func setupAppEngineEnvAPI(swPlugin *swagger.Plugin) {
+func SetupAppEngineEnvAPI(swPlugin *swagger.Plugin) {
 	api := &AppEngineEnvAPI{}
 
 	tag := swPlugin.AddTag(&swagger.Tag{Name: "AppEngineEnv", Description: "AppEngineEnv API List"})

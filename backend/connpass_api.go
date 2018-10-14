@@ -17,7 +17,7 @@ import (
 	"google.golang.org/appengine/urlfetch"
 )
 
-func setupConnpassAPI(swPlugin *swagger.Plugin) {
+func SetupConnpassAPI(swPlugin *swagger.Plugin) {
 	api := ConnpassAPI{}
 	tag := swPlugin.AddTag(&swagger.Tag{Name: "connpass", Description: "connpass"})
 	var hInfo *swagger.HandlerInfo

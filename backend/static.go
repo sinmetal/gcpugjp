@@ -12,11 +12,7 @@ import (
 // ErrDirectory is target path is Directory
 var ErrDirectory = errors.New("path is directory")
 
-func init() {
-	http.HandleFunc("/", handler)
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
+func StaticContentsHandler(w http.ResponseWriter, r *http.Request) {
 	fn := r.URL.Path[1:len(r.URL.Path)]
 	if fn == "" || fn == "/" {
 		fn = "index.html"

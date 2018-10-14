@@ -9,7 +9,7 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-func setupPugEventAPI(swPlugin *swagger.Plugin) {
+func SetupPugEventAPI(swPlugin *swagger.Plugin) {
 	api := &PugEventAPI{}
 	tag := swPlugin.AddTag(&swagger.Tag{Name: "PugEvent", Description: "PugEvent API list"})
 	var hInfo *swagger.HandlerInfo
