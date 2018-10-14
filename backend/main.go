@@ -1,4 +1,4 @@
-package backend
+package main
 
 import (
 	"context"
@@ -7,15 +7,15 @@ import (
 	"reflect"
 	"strings"
 
+	"google.golang.org/appengine"
 	"github.com/favclip/ucon"
 	"github.com/favclip/ucon/swagger"
 	"go.mercari.io/datastore"
 	"go.mercari.io/datastore/aedatastore"
-	"google.golang.org/appengine"
 )
 
-func init() {
-	ucon.Middleware(UseAppengineContext)
+func main() {
+	// ucon.Middleware(UseAppengineContext)
 	ucon.Orthodox()
 	ucon.Middleware(swagger.RequestValidator())
 
@@ -45,14 +45,17 @@ func init() {
 
 	ucon.DefaultMux.Prepare()
 	http.Handle("/api/", ucon.DefaultMux)
+
+	appengine.Main()
 }
 
 // UseAppengineContext is UseAppengineContext
 func UseAppengineContext(b *ucon.Bubble) error {
 	if b.Context == nil {
-		b.Context = appengine.NewContext(b.R)
+		b.Context = b.R.Context()
+
 	} else {
-		b.Context = appengine.WithContext(b.Context, b.R)
+		// TODO contextのnestってできるんだっけ？
 	}
 
 	return b.Next()

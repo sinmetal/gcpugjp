@@ -1,9 +1,11 @@
-package backend
+package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -37,6 +39,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	ctx := context.Background()
+	store, err := NewOrganizationStore(ctx)
+	if err != nil {
+		log.Printf("failed NewOrganizationStore. err = %+v", err)
+	} else {
+		l, err := store.ListAll(ctx)
+		if err != nil {
+			log.Printf("failed OrganizationStore.ListAll err = %+v", err)
+		}
+		log.Printf("Organizetion : %+v", l)
 	}
 
 	ext := filepath.Ext(fmt.Sprintf("static/%s", fn))

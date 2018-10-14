@@ -1,8 +1,5 @@
-application: gcpugjp-dev
-module: default
-version: 1
-runtime: go
-api_version: go1.9
+service: default
+runtime: go111
 instance_class: F1
 automatic_scaling:
   target_cpu_utilization: 0.75

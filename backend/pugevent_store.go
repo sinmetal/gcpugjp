@@ -1,6 +1,6 @@
 //go:generate qbg -usedatastorewrapper -output model_query.go .
 
-package backend
+package main
 
 import (
 	"context"

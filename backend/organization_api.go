@@ -1,7 +1,6 @@
-package backend
+package main
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/favclip/ucon"
@@ -31,7 +30,9 @@ type OrganizationAPIListResponse struct {
 
 // List is OrganizationをOrder順に全件返す API
 // Interfaceを他のListと合わせてHasNext, Cursorを返すようにしているが、Organizationがそんなに増えることはないので、使ってはない
-func (api *OrganizationAPI) List(ctx context.Context) (*OrganizationAPIListResponse, error) {
+func (api *OrganizationAPI) List(r *http.Request) (*OrganizationAPIListResponse, error) {
+	ctx := r.Context()
+
 	store, err := NewOrganizationStore(ctx)
 	if err != nil {
 		log.Errorf(ctx, "failed NewOrganizationStore: %+v", err)
