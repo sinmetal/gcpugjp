@@ -26,6 +26,9 @@ type PugEvent struct {
 	Title          string        `json:"title" datastore:",noindex"`       // イベントタイトル
 	Description    string        `json:"description" datastore:",noindex"` // イベント説明
 	URL            string        `json:"url"`                              // イベント募集URL
+	Limit          int           `json:"limit"`                            // 募集上限
+	Waiting        int           `json:"waiting"`                          // キャンセル待ち
+	Accepted       int           `json:"accepted"`                         // 参加可能者
 	StartAt        time.Time     `json:"startAt"`                          // 開催日時
 	EndAt          time.Time     `json:"endAt"`                            // 終了日時
 	CreatedAt      time.Time     `json:"createdAt"`                        // 作成日時
@@ -86,17 +89,43 @@ func (store *PugEventStore) NameKey(ctx context.Context, url string) datastore.K
 	return store.DatastoreClient.NameKey(store.Kind(), fmt.Sprintf("%x", sha256.Sum256([]byte(url))), nil)
 }
 
-// Create is PugEventをDatastoreにputする
-func (store *PugEventStore) Create(ctx context.Context, e *PugEvent) (*PugEvent, error) {
+// Upsert is PugEventをDatastoreにputする
+func (store *PugEventStore) Upsert(ctx context.Context, e *PugEvent) (*PugEvent, error) {
 	ds := store.DatastoreClient
 
+	pe := &PugEvent{}
 	key := store.NameKey(ctx, e.URL)
-	_, err := ds.Put(ctx, key, e)
+	_, err := ds.RunInTransaction(ctx, func(tx datastore.Transaction) error {
+
+		err := tx.Get(key, pe)
+		if err == datastore.ErrNoSuchEntity {
+			// no-op
+		} else if err != nil {
+			return err
+		}
+		pe.StartAt = e.StartAt
+		pe.EndAt = e.EndAt
+		pe.Title = e.Title
+		pe.Limit = e.Limit
+		pe.Accepted = e.Accepted
+		pe.Waiting = e.Waiting
+		pe.OrganizationID = e.OrganizationID
+		pe.URL = e.URL
+		pe.Description = e.Description
+
+		_, err = tx.Put(key, pe)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("failed put PugEvent to Datastore. key=%v", key))
+		errors.Wrap(err, fmt.Sprintf("failed put PugEvent to Datastore. key=%v", key))
 	}
-	e.Key = key
-	return e, nil
+	pe.Key = key
+
+	return pe, nil
 }
 
 // Get is PugEventをDatastoreからgetする

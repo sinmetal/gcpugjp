@@ -96,13 +96,16 @@ func (api *ConnpassAPI) Get(ctx context.Context, w http.ResponseWriter, r *http.
 		log.Infof(ctx, "%s\n", string(j))
 
 		pe := PugEvent{}
+		pe.Limit = v.Limit
+		pe.Waiting = v.Waiting
+		pe.Accepted = v.Accepted
 		pe.StartAt = v.StartedAt
 		pe.EndAt = v.EndedAt
 		pe.Title = v.Title
 		pe.URL = v.URL
 		pe.OrganizationID = sm[v.Series.ID]
 
-		_, err = store.Create(ctx, &pe)
+		_, err = store.Upsert(ctx, &pe)
 		if err != nil {
 			// 重複エラーもあるので、失敗しても気にしない
 			log.Warningf(ctx, "failed put PugEvent title=%s. err:%+v", pe.Title, err)
@@ -120,8 +123,11 @@ func (api *ConnpassAPI) Get(ctx context.Context, w http.ResponseWriter, r *http.
 }
 
 func (api *ConnpassAPI) getConnpassEvents(ctx context.Context) (*ConnpassResult, error) {
+	url := fmt.Sprintf("https://connpass.com/api/v1/event/?series_id=%s", api.getSeriesIDParam())
+	fmt.Printf("connpass api url = %s\n", url)
+
 	client := urlfetch.Client(ctx)
-	resp, err := client.Get(fmt.Sprintf("https://connpass.com/api/v1/event/?series_id=%s", api.getSeriesIDParam()))
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed connpass event query")
 	}
@@ -166,6 +172,7 @@ func (api *ConnpassAPI) getSeriesIDMap() map[int]string {
 		5812: "wakayama",
 		4086: "hiroshima",
 		4609: "shimane",
+		6415: "kochi",
 		1170: "fukuoka",
 		4758: "kagoshima",
 		3824: "okinawa",
