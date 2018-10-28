@@ -1,1 +1,1 @@
-goapp test github.com/sinmetal/gcpugjp/backend
+go test github.com/sinmetal/gcpugjp/backend
