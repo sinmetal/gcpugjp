@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/favclip/testerator"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestPugEventStore_Upsert(t *testing.T) {
@@ -22,9 +23,11 @@ func TestPugEventStore_Upsert(t *testing.T) {
 
 	now := time.Now()
 	candidates := []struct {
+		desc  string
 		param PugEvent
 	}{
 		{
+			desc: "first event",
 			param: PugEvent{
 				OrganizationID: "tokyo",
 				Title:          "GCPUG Day",
@@ -37,6 +40,7 @@ func TestPugEventStore_Upsert(t *testing.T) {
 			},
 		},
 		{
+			desc: "updated limit",
 			param: PugEvent{
 				OrganizationID: "tokyo",
 				Title:          "GCPUG Day",
@@ -51,47 +55,45 @@ func TestPugEventStore_Upsert(t *testing.T) {
 	}
 
 	for _, v := range candidates {
-		e := v.param
-
-		stored, err := store.Upsert(ctx, &e)
+		stored, err := store.Upsert(ctx, &v.param)
 		if err != nil {
 			t.Fatalf("%+v", err)
 		}
+
+		test := struct {
+			desc   string
+			input  PugEvent
+			stored PugEvent
+		}{
+			desc:   v.desc,
+			input:  v.param,
+			stored: *stored,
+		}
+
 		if stored.Key == nil {
 			t.Fatalf("Key is Empty.")
 		}
-		if e, g := e.OrganizationID, stored.OrganizationID; e != g {
-			t.Fatalf("expected OrganizationID %s; got %s", e, g)
-		}
-		if e, g := e.Title, stored.Title; e != g {
-			t.Fatalf("expected Title %s; got %s", e, g)
-		}
-		if e, g := e.Description, stored.Description; e != g {
-			t.Fatalf("expected Description %s; got %s", e, g)
-		}
-		if e, g := e.URL, stored.URL; e != g {
-			t.Fatalf("expected URL %s; got %s", e, g)
-		}
-		if e, g := e.Limit, stored.Limit; e != g {
-			t.Fatalf("expected Limit %d; got %d", e, g)
-		}
-		if e, g := e.Accepted, stored.Accepted; e != g {
-			t.Fatalf("expected Accepted %d; got %d", e, g)
-		}
-		//if e, g := e.StartAt, stored.StartAt; !EqualTime(e, g) {
-		//	t.Fatalf("expected StartAt %s; got %s", e, g)
-		//}
-		//if e, g := e.EndAt, stored.EndAt; !EqualTime(e, g) {
-		//	t.Fatalf("expected EndAt %s; got %s", e, g)
-		//}
-		if stored.CreatedAt.IsZero() {
+		if test.stored.CreatedAt.IsZero() {
 			t.Fatalf("CreatedAt is Zero")
 		}
-		if stored.UpdatedAt.IsZero() {
+		if test.stored.UpdatedAt.IsZero() {
 			t.Fatalf("UpdatedAt is Zero")
 		}
-		if stored.SchemaVersion == 0 {
+		if test.stored.SchemaVersion == 0 {
 			t.Fatalf("SchemaVersion is Zero")
+		}
+
+		filterOpt := cmp.FilterPath(func(p cmp.Path) bool {
+			ignoreKeys := []string{"Key", "SchemaVersion", "CreatedAt", "UpdatedAt"}
+			for _, v := range ignoreKeys {
+				if p.String() == v {
+					return true
+				}
+			}
+			return false
+		}, cmp.Ignore())
+		if diff := cmp.Diff(test.input, test.stored, filterOpt); diff != "" {
+			t.Errorf("%s: differs: (-want +got)\n%s", test.desc, diff)
 		}
 	}
 }

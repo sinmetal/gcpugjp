@@ -7,7 +7,7 @@ require (
 	github.com/favclip/testerator v0.0.0-20180606025010-04c1c0fc2a5a
 	github.com/favclip/ucon v2.2.0+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
-	github.com/google/go-cmp v0.2.0 // indirect
+	github.com/google/go-cmp v0.2.0
 	github.com/googleapis/gax-go v2.0.0+incompatible // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/k0kubun/pp v2.3.0+incompatible // indirect
