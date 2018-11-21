@@ -84,7 +84,8 @@ func (api *ConnpassAPI) HandlerCron(ctx context.Context) error {
 	tl := []*taskqueue.Task{}
 	for k, _ := range m {
 		tl = append(tl, &taskqueue.Task{
-			Path: fmt.Sprintf("/api/queue/1/connpass/%v", k),
+			Path:   fmt.Sprintf("/api/queue/1/connpass/%v", k),
+			Method: http.MethodGet,
 		})
 	}
 	_, err := taskqueue.AddMulti(ctx, tl, "connpass")
