@@ -14,12 +14,12 @@ automatic_scaling:
 handlers:
 - url: /api/cron/.*
   login: admin
-  script: _go_app
+  script: auto
 - url: /api/admin/.*
   login: admin
-  script: _go_app
+  script: auto
 - url: /swagger-ui
   static_dir: swagger-ui
   login: admin
 - url: /.*
-  script: _go_app
+  script: auto
