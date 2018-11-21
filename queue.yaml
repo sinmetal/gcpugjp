@@ -1,0 +1,3 @@
+queue:
+- name: connpass
+  rate: 1/m

@@ -6,15 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/favclip/ucon"
 	"github.com/favclip/ucon/swagger"
 	"github.com/pkg/errors"
 	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/urlfetch"
+	"google.golang.org/appengine/taskqueue"
 )
 
 func SetupConnpassAPI(swPlugin *swagger.Plugin) {
@@ -22,8 +20,12 @@ func SetupConnpassAPI(swPlugin *swagger.Plugin) {
 	tag := swPlugin.AddTag(&swagger.Tag{Name: "connpass", Description: "connpass"})
 	var hInfo *swagger.HandlerInfo
 
-	hInfo = swagger.NewHandlerInfo(api.Get)
+	hInfo = swagger.NewHandlerInfo(api.HandlerCron)
 	ucon.Handle(http.MethodGet, "/api/cron/1/connpass", hInfo)
+	hInfo.Description, hInfo.Tags = "get from connpass start", []string{tag.Name}
+
+	hInfo = swagger.NewHandlerInfo(api.Get)
+	ucon.Handle(http.MethodGet, "/api/queue/1/connpass/{seriesId}", hInfo)
 	hInfo.Description, hInfo.Tags = "get from connpass", []string{tag.Name}
 }
 
@@ -72,9 +74,30 @@ type ConnpassSeries struct {
 // ConnpassAPIは https://connpass.com/about/api/ を実行してイベントを拾ってくる機能を持つ
 type ConnpassAPI struct{}
 
+type ConnpassAPIGetForm struct {
+	SeriesID int `json:"seriesId" swagger:",in=query"`
+}
+
+// HandlerCron is Cron Handler
+func (api *ConnpassAPI) HandlerCron(ctx context.Context) error {
+	m := api.getSeriesIDMap()
+	tl := []*taskqueue.Task{}
+	for k, _ := range m {
+		tl = append(tl, &taskqueue.Task{
+			Path: fmt.Sprintf("/api/queue/1/connpass/%v", k),
+		})
+	}
+	_, err := taskqueue.AddMulti(ctx, tl, "connpass")
+	if err != nil {
+		log.Errorf(ctx, "failed taskqueue.AddMulti err:%+v", err)
+		return err
+	}
+	return nil
+}
+
 // Get is Connpass APIを実行して、新しいイベントがあれば、Datastoreに登録するCronから起動するためのAPI
-func (api *ConnpassAPI) Get(ctx context.Context, w http.ResponseWriter, r *http.Request) (*ConnpassResult, error) {
-	result, err := api.getConnpassEvents(ctx)
+func (api *ConnpassAPI) Get(ctx context.Context, form *ConnpassAPIGetForm) (*ConnpassResult, error) {
+	result, err := api.getConnpassEvents(ctx, form.SeriesID)
 	if err != nil {
 		log.Errorf(ctx, "failed connpass events api: %+v", err)
 		return nil, err
@@ -122,12 +145,11 @@ func (api *ConnpassAPI) Get(ctx context.Context, w http.ResponseWriter, r *http.
 	return result, nil
 }
 
-func (api *ConnpassAPI) getConnpassEvents(ctx context.Context) (*ConnpassResult, error) {
-	url := fmt.Sprintf("https://connpass.com/api/v1/event/?series_id=%s", api.getSeriesIDParam())
+func (api *ConnpassAPI) getConnpassEvents(ctx context.Context, seriesId int) (*ConnpassResult, error) {
+	url := fmt.Sprintf("https://connpass.com/api/v1/event/?series_id=%v", seriesId)
 	fmt.Printf("connpass api url = %s\n", url)
 
-	client := urlfetch.Client(ctx)
-	resp, err := client.Get(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed connpass event query")
 	}
@@ -144,15 +166,6 @@ func (api *ConnpassAPI) getConnpassEvents(ctx context.Context) (*ConnpassResult,
 		return nil, errors.New("failed connpass api result body to json.Unmarshal")
 	}
 	return &result, nil
-}
-
-func (api *ConnpassAPI) getSeriesIDParam() string {
-	a := []string{}
-	m := api.getSeriesIDMap()
-	for k := range m {
-		a = append(a, strconv.Itoa(k))
-	}
-	return strings.Join(a, ",")
 }
 
 // getSeriesIDMap is Watch対象のconnpass group一覧を取得する
