@@ -26,6 +26,6 @@ _testmain.go
 # IntelliJ
 .idea
 
-frontend/dist/*
-frontend/node_modules/*
-frontend/package-lock.json
+dist/
+node_modules/
+package-lock.json

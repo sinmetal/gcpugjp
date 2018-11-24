@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {PugeventService} from "../services/pugevent.service";
 import {Observable} from "rxjs/Observable";
-import {Pugevent, PugeventListAPIResponse} from "../shared/models/pugevent";
+import {PugeventListAPIResponse} from "../shared/models/Pugevent";
 
 @Component({
   selector: 'app-pugevent',
