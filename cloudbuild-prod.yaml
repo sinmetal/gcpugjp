@@ -1,3 +1,5 @@
 steps:
 - name: gcr.io/cloud-builders/gcloud
   args: ['app', 'deploy', '--project=$PROJECT_ID', '--version=$TAG_NAME', '--no-promote', '.']
+- name: gcr.io/cloud-builders/gcloud
+  args: ['app', 'deploy', '--project=$PROJECT_ID', '--version=$TAG_NAME', '--no-promote', 'connpass.yaml']
