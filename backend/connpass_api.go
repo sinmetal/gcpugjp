@@ -175,7 +175,8 @@ func (api *ConnpassAPI) getSeriesIDMap() map[int]string {
 	return map[int]string{
 		1898: "tokyo",
 		2774: "beginners-tokyo",
-		6273: "yokoyama",
+		6273: "yokohama",
+		5034: "sendai",
 		5270: "ibaraki",
 		5424: "fukushima",
 		2239: "nagoya",
@@ -191,6 +192,7 @@ func (api *ConnpassAPI) getSeriesIDMap() map[int]string {
 		4609: "shimane",
 		6415: "kochi",
 		1170: "fukuoka",
+		7143: "kumamoto",
 		4758: "kagoshima",
 		3824: "okinawa",
 	}
