@@ -170,12 +170,13 @@ func (api *ConnpassAPI) getConnpassEvents(ctx context.Context, seriesId int) (*C
 }
 
 // getSeriesIDMap is Watch対象のconnpass group一覧を取得する
-// group idは https://connpass.com/api/v1/event/?keyword=GCPUG を叩くと見える
+// group idは https://connpass.com/api/v1/event/?event_id=XXXXX を叩くと見える
 func (api *ConnpassAPI) getSeriesIDMap() map[int]string {
 	return map[int]string{
 		1898: "tokyo",
 		2774: "beginners-tokyo",
 		6273: "yokohama",
+		7437: "saitama",
 		5034: "sendai",
 		5270: "ibaraki",
 		5424: "fukushima",
